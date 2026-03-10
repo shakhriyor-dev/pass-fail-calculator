@@ -1,61 +1,78 @@
 /**
- * Dinamik ravishda choraklar uchun input maydonlarini yaratadi
+ * Tanlangan choraklar soniga qarab input maydonlarini yaratadi
  */
 function generateInputs() {
-    const count = document.getElementById('quarters').value;
+    const count = parseInt(document.getElementById('quarters').value);
     const container = document.getElementById('inputs-container');
+    const resultDiv = document.getElementById('result');
+    
+    // Natijani yashirish
+    resultDiv.style.display = 'none';
+    
+    // Konteynerni tozalash
     container.innerHTML = '';
     
-    // Yangi: Grid konteyner qo'shamiz
-    const grid = document.createElement('div');
-    grid.style.display = 'grid';
-    grid.style.gridTemplateColumns = 'repeat(auto-fit, minmax(120px, 1fr))';
-    grid.style.gap = '10px';
-    grid.style.marginTop = '15px';
-
-    for(let i = 1; i <= count; i++) {
-        grid.innerHTML += `
-            <div class="input-group">
-                <label>${i}-chorak:</label>
-                <input type="number" class="score-input" placeholder="0-100" min="0" max="100">
-            </div>
+    for (let i = 1; i <= count; i++) {
+        // Yangi element yaratish
+        const div = document.createElement('div');
+        div.className = 'input-group';
+        div.style.marginTop = '15px'; // Har bir guruh orasida masofa
+        
+        div.innerHTML = `
+            <label>${i}-chorak imtihon natijasi:</label>
+            <input type="number" class="score-input" placeholder="0-100" min="0" max="100">
         `;
+        
+        container.appendChild(div);
     }
-    container.appendChild(grid);
 }
 
 /**
- * Maktabda qolish uchun kerakli ballni hisoblaydi
+ * Maktabda qolish uchun zarur bo'lgan ballni hisoblaydi
  */
 function calculate() {
     const inputs = document.querySelectorAll('.score-input');
     const resultDiv = document.getElementById('result');
-    let totalScore = 0;
     
+    let totalScore = 0;
+    let hasEmpty = false;
+
+    // Ballarni yig'ish va tekshirish
     inputs.forEach(input => {
+        if (input.value === "") {
+            hasEmpty = true;
+        }
         totalScore += Number(input.value) || 0;
     });
 
-    const PASS_MARK = 60;
-    const TOTAL_QUARTERS = 4;
-    const REQUIRED_SUM = PASS_MARK * TOTAL_QUARTERS; // 240
-    
-    const count = inputs.length;
-    const remainingQuarters = TOTAL_QUARTERS - count;
-    const remainingNeeded = REQUIRED_SUM - totalScore;
-    const avgNeeded = remainingNeeded / remainingQuarters;
+    if (hasEmpty) {
+        alert("Iltimos, barcha chorak ballarini kiriting!");
+        return;
+    }
 
+    const PASS_AVG = 60;
+    const TOTAL_QUARTERS = 4;
+    const GOAL_SCORE = PASS_AVG * TOTAL_QUARTERS; // 240
+    
+    const completedCount = inputs.length;
+    const remainingCount = TOTAL_QUARTERS - completedCount;
+    const neededScore = GOAL_SCORE - totalScore;
+    const avgNeeded = neededScore / remainingCount;
+
+    // Natijani ko'rsatish
     resultDiv.style.display = 'block';
 
     if (avgNeeded <= 0) {
-        resultDiv.innerHTML = "🎉 <span class='highlight'>Tabriklaymiz!</span> Siz allaqachon xavfsizsiz.";
+        resultDiv.innerHTML = "🎉 <span class='highlight'>Tabriklaymiz!</span> Sizda allaqachon yetarli ball bor. Maktabda qolasiz!";
     } else if (avgNeeded > 100) {
-        resultDiv.innerHTML = "⚠️ <span style='color: #ef4444;'>Xavfli!</span> Hatto 100 balldan olsangiz ham o'ta olmaysiz.";
+        resultDiv.innerHTML = "⚠️ <span style='color: #ef4444;'>Afsuski</span>, qolgan choraklarda hatto 100 ball olsangiz ham yetmaydi.";
     } else {
-        resultDiv.innerHTML = `Sizga yana <span class='highlight'>${remainingNeeded}</span> ball kerak.<br>
-                               Qolgan choraklarda o'rtacha: <span class='highlight'>${avgNeeded.toFixed(1)}</span>`;
+        resultDiv.innerHTML = `
+            Sizga yana jami <span class='highlight'>${neededScore}</span> ball kerak.<br>
+            Qolgan ${remainingCount} chorakda o'rtacha <span class='highlight'>${avgNeeded.toFixed(1)}</span> ball olishingiz zarur.
+        `;
     }
 }
 
-// Dastlabki yuklanishda 1-chorak inputini ko'rsatish
-window.onload = generateInputs;
+// Sahifa yuklanganda birinchi chorak inputini yaratish
+document.addEventListener('DOMContentLoaded', generateInputs);
