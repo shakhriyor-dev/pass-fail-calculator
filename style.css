@@ -92,14 +92,35 @@ select, input {
     padding: 12px;
     border-radius: 14px;
     border: 2px solid var(--input-border);
-    background: transparent;
+    /* Background va Color o'zgaruvchilardan foydalanishi shart */
+    background-color: var(--card-bg); 
     color: var(--text-color);
     font-size: 1rem;
     outline: none;
     box-sizing: border-box;
     transition: 0.3s;
+    cursor: pointer;
 }
 
+/* Tungi mavzuda select ochilganda variantlar ko'rinishi uchun */
+select option {
+    background-color: var(--card-bg);
+    color: var(--text-color);
+}
+
+/* Fokus bo'lganda border rangini o'zgartirish */
+select:focus, input:focus {
+    border-color: var(--accent);
+}
+
+/* Light mode uchun ranglarni aniq belgilaymiz */
+.light-mode {
+    --bg-color: #f1f5f9;
+    --card-bg: #ffffff;
+    --text-color: #1e293b;
+    --accent: #0284c7;
+    --input-border: #cbd5e1;
+}
 input:focus { border-color: var(--accent); }
 
 input.error {
