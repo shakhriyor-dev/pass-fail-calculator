@@ -6,14 +6,22 @@ function generateInputs() {
     const container = document.getElementById('inputs-container');
     container.innerHTML = '';
     
+    // Yangi: Grid konteyner qo'shamiz
+    const grid = document.createElement('div');
+    grid.style.display = 'grid';
+    grid.style.gridTemplateColumns = 'repeat(auto-fit, minmax(120px, 1fr))';
+    grid.style.gap = '10px';
+    grid.style.marginTop = '15px';
+
     for(let i = 1; i <= count; i++) {
-        container.innerHTML += `
+        grid.innerHTML += `
             <div class="input-group">
-                <label>${i}-chorak imtihon bali:</label>
+                <label>${i}-chorak:</label>
                 <input type="number" class="score-input" placeholder="0-100" min="0" max="100">
             </div>
         `;
     }
+    container.appendChild(grid);
 }
 
 /**
