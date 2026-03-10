@@ -1,35 +1,24 @@
-/**
- * Tanlangan choraklar soniga qarab input maydonlarini yaratadi
- */
 function generateInputs() {
     const count = parseInt(document.getElementById('quarters').value);
     const container = document.getElementById('inputs-container');
     const resultDiv = document.getElementById('result');
     
-    // Natijani yashirish
-    resultDiv.style.display = 'none';
-    
-    // Konteynerni tozalash
-    container.innerHTML = '';
+    resultDiv.style.display = 'none'; // Yangi tanlovda natijani yashirish
+    container.innerHTML = ''; // Konteynerni tozalash
     
     for (let i = 1; i <= count; i++) {
-        // Yangi element yaratish
         const div = document.createElement('div');
         div.className = 'input-group';
-        div.style.marginTop = '15px'; // Har bir guruh orasida masofa
+        div.style.marginTop = '10px';
         
         div.innerHTML = `
-            <label>${i}-chorak imtihon natijasi:</label>
+            <label>${i}-chorak imtihon bali:</label>
             <input type="number" class="score-input" placeholder="0-100" min="0" max="100">
         `;
-        
         container.appendChild(div);
     }
 }
 
-/**
- * Maktabda qolish uchun zarur bo'lgan ballni hisoblaydi
- */
 function calculate() {
     const inputs = document.querySelectorAll('.score-input');
     const resultDiv = document.getElementById('result');
@@ -37,11 +26,8 @@ function calculate() {
     let totalScore = 0;
     let hasEmpty = false;
 
-    // Ballarni yig'ish va tekshirish
     inputs.forEach(input => {
-        if (input.value === "") {
-            hasEmpty = true;
-        }
+        if (input.value === "") hasEmpty = true;
         totalScore += Number(input.value) || 0;
     });
 
@@ -50,29 +36,45 @@ function calculate() {
         return;
     }
 
-    const PASS_AVG = 60;
-    const TOTAL_QUARTERS = 4;
-    const GOAL_SCORE = PASS_AVG * TOTAL_QUARTERS; // 240
-    
     const completedCount = inputs.length;
-    const remainingCount = TOTAL_QUARTERS - completedCount;
-    const neededScore = GOAL_SCORE - totalScore;
-    const avgNeeded = neededScore / remainingCount;
-
-    // Natijani ko'rsatish
+    const average = totalScore / completedCount;
     resultDiv.style.display = 'block';
 
-    if (avgNeeded <= 0) {
-        resultDiv.innerHTML = "🎉 <span class='highlight'>Tabriklaymiz!</span> Sizda allaqachon yetarli ball bor. Maktabda qolasiz!";
-    } else if (avgNeeded > 100) {
-        resultDiv.innerHTML = "⚠️ <span style='color: #ef4444;'>Afsuski</span>, qolgan choraklarda hatto 100 ball olsangiz ham yetmaydi.";
+    if (completedCount === 4) {
+        // YAKUNIY NATIJA (4-chorak tugaganda)
+        if (average >= 60) {
+            resultDiv.innerHTML = `
+                <div style="color: var(--success)">
+                    <p class="highlight">O'rtacha: ${average.toFixed(1)}</p>
+                    <p>Tabriklaymiz! Siz maktabda qolasiz. 🎉</p>
+                </div>
+            `;
+        } else {
+            resultDiv.innerHTML = `
+                <div style="color: var(--danger)">
+                    <p class="highlight">O'rtacha: ${average.toFixed(1)}</p>
+                    <p>Afsuski, siz maktabdan haydalasiz. 🚫</p>
+                </div>
+            `;
+        }
     } else {
-        resultDiv.innerHTML = `
-            Sizga yana jami <span class='highlight'>${neededScore}</span> ball kerak.<br>
-            Qolgan ${remainingCount} chorakda o'rtacha <span class='highlight'>${avgNeeded.toFixed(1)}</span> ball olishingiz zarur.
-        `;
+        // BASHORAT (1-3 choraklar uchun)
+        const remainingQuarters = 4 - completedCount;
+        const remainingNeeded = 240 - totalScore;
+        const avgNeeded = remainingNeeded / remainingQuarters;
+
+        if (avgNeeded <= 0) {
+            resultDiv.innerHTML = `<p class="highlight" style="color: var(--success)">Siz allaqachon xavfsizsiz! ✅</p>`;
+        } else if (avgNeeded > 100) {
+            resultDiv.innerHTML = `<p class="highlight" style="color: var(--danger)">Imkonsiz! ❌</p><p>Hatto 100 ball olsangiz ham yetmaydi.</p>`;
+        } else {
+            resultDiv.innerHTML = `
+                <p>Hozirgi o'rtacha: <b>${average.toFixed(1)}</b></p>
+                <p>Qolgan ${remainingQuarters} chorakda o'rtacha <span class="highlight" style="color: var(--accent)">${avgNeeded.toFixed(1)}</span> ball olishingiz kerak.</p>
+            `;
+        }
     }
 }
 
-// Sahifa yuklanganda birinchi chorak inputini yaratish
-document.addEventListener('DOMContentLoaded', generateInputs);
+// Sahifa yuklanganda avtomatik birinchi inputni chiqarish
+window.onload = generateInputs;
