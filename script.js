@@ -1,123 +1,113 @@
 /**
- * Tanlangan choraklar soniga qarab dinamik inputlar yaratadi
+ * Dark/Light mode almashtirish
+ */
+function toggleTheme() {
+    document.body.classList.toggle('light-mode');
+    const isLight = document.body.classList.contains('light-mode');
+    localStorage.setItem('theme', isLight ? 'light' : 'dark');
+}
+
+/**
+ * Dinamik input yaratish
  */
 function generateInputs() {
     const count = parseInt(document.getElementById('quarters').value);
     const container = document.getElementById('inputs-container');
     const resultDiv = document.getElementById('result');
+    const progContainer = document.getElementById('prog-container');
     
-    // Har gal tanlov o'zgarganda natijani yashiramiz va konteynerni tozalaymiz
     resultDiv.style.display = 'none';
+    progContainer.style.display = 'none';
     container.innerHTML = '';
     
     for (let i = 1; i <= count; i++) {
-        const div = document.createElement('div');
-        div.className = 'input-group';
-        div.style.marginTop = '15px';
-        
-        div.innerHTML = `
-            <label>${i}-chorak imtihon bali (0-100):</label>
-            <input type="number" class="score-input" 
-                   placeholder="Ballni kiriting" 
-                   oninput="validateInput(this)">
-            <small class="error-msg" style="color: #ef4444; font-size: 0.75rem; display: none; margin-top: 5px;">
-                Iltimos, 0 va 100 orasida son kiriting!
-            </small>
-        `;
-        container.appendChild(div);
+        container.innerHTML += `
+            <div class="input-group" style="margin-top: 12px">
+                <label>${i}-chorak bali:</label>
+                <input type="number" class="score-input" placeholder="0-100" 
+                       oninput="validateInput(this)">
+            </div>`;
     }
 }
 
 /**
- * Real vaqtda inputni tekshirish (Validation)
+ * Validation: Faqat 0-100 oralig'i
  */
 function validateInput(input) {
     const val = parseFloat(input.value);
-    const errorMsg = input.nextElementSibling;
-
-    // Agar son 0-100 oralig'ida bo'lmasa yoki harf bo'lsa xato beramiz
-    if (input.value !== "" && (val < 0 || val > 100 || isNaN(val))) {
-        input.classList.add('error'); // CSS-dagi titrash effekti uchun
-        errorMsg.style.display = 'block';
+    if (val < 0 || val > 100 || isNaN(val)) {
+        input.classList.add('error');
     } else {
         input.classList.remove('error');
-        errorMsg.style.display = 'none';
     }
 }
 
 /**
- * Asosiy hisoblash mantiqi
+ * Progress Barni yangilash
+ */
+function updateProgress(avg) {
+    const container = document.getElementById('prog-container');
+    const bar = document.getElementById('prog-bar');
+    const valText = document.getElementById('prog-value');
+    
+    container.style.display = 'block';
+    bar.style.width = Math.min(avg, 100) + "%";
+    valText.innerText = avg.toFixed(1);
+
+    if (avg < 40) bar.style.backgroundColor = "#ef4444";
+    else if (avg < 60) bar.style.backgroundColor = "#eab308";
+    else bar.style.backgroundColor = "#22c55e";
+}
+
+/**
+ * Hisoblash va Hukm chiqarish
  */
 function calculate() {
     const inputs = document.querySelectorAll('.score-input');
     const resultDiv = document.getElementById('result');
-    
-    let totalScore = 0;
-    let isValid = true;
-    let emptyFields = false;
+    let total = 0, isValid = true, empty = false;
 
-    // Har bir maydonni tekshirib chiqamiz
     inputs.forEach(input => {
-        const val = input.value;
-        const numVal = parseFloat(val);
-
-        if (val === "") {
-            emptyFields = true;
-            input.classList.add('error');
-            isValid = false;
-        } else if (numVal < 0 || numVal > 100 || isNaN(numVal)) {
-            isValid = false;
-        } else {
-            totalScore += numVal;
-            input.classList.remove('error');
-        }
+        const v = input.value;
+        if (v === "") empty = true;
+        const n = parseFloat(v);
+        if (n < 0 || n > 100 || isNaN(n)) isValid = false;
+        total += n;
     });
 
-    // Agar xatolik bo'lsa, hisoblamaymiz
-    if (emptyFields) {
-        alert("Barcha maydonlarni to'ldiring!");
-        return;
-    }
-    if (!isValid) {
-        alert("Ballar noto'g'ri kiritilgan. Iltimos, tekshiring!");
+    if (empty || !isValid) {
+        alert("Iltimos, barcha kataklarni 0-100 oralig'ida to'ldiring!");
         return;
     }
 
-    const completedCount = inputs.length;
-    const average = totalScore / completedCount;
+    const count = inputs.length;
+    const avg = total / count;
+    updateProgress(avg);
     resultDiv.style.display = 'block';
 
-    if (completedCount === 4) {
-        // 4-chorak: Yakuniy xulosa
-        if (average >= 60) {
-            resultDiv.innerHTML = `
-                <p class="highlight" style="color: var(--success)">O'rtacha: ${average.toFixed(1)}</p>
-                <p>Tabriklaymiz! Siz maktabda qolasiz. 🎉</p>
-            `;
+    if (count === 4) {
+        if (avg >= 60) {
+            resultDiv.innerHTML = `<b style="color:var(--success)">TABRIKLAYMIZ! 🎉</b><br>O'rtacha ${avg.toFixed(1)} ball bilan maktabda qolasiz!`;
         } else {
-            resultDiv.innerHTML = `
-                <p class="highlight" style="color: var(--danger)">O'rtacha: ${average.toFixed(1)}</p>
-                <p>Afsuski, siz maktabdan haydalasiz. 🚫</p>
-            `;
+            resultDiv.innerHTML = `<b style="color:var(--danger)">AFSUSA... 🚫</b><br>Ball yetmadi, maktabdan haydalasiz.`;
         }
     } else {
-        // 1-3 choraklar: Bashorat
-        const remainingQuarters = 4 - completedCount;
-        const remainingNeeded = 240 - totalScore; // 60 * 4 = 240
-        const avgNeeded = remainingNeeded / remainingQuarters;
+        const rem = 4 - count;
+        const need = 240 - total;
+        const avgNeed = need / rem;
 
-        if (avgNeeded <= 0) {
-            resultDiv.innerHTML = `<p class="highlight" style="color: var(--success)">Siz allaqachon xavfsizsiz! ✅</p><p>Hatto keyingi imtihonlardan 0 olsangiz ham qolasiz.</p>`;
-        } else if (avgNeeded > 100) {
-            resultDiv.innerHTML = `<p class="highlight" style="color: var(--danger)">Vaziyat kritik! ❌</p><p>Qolgan imtihonlardan 100 ball olsangiz ham o'rtacha 60 chiqmaydi.</p>`;
+        if (avgNeed <= 0) {
+            resultDiv.innerHTML = `<span style="color:var(--success)">Siz allaqachon xavfsizsiz! ✅</span>`;
+        } else if (avgNeed > 100) {
+            resultDiv.innerHTML = `<span style="color:var(--danger)">Imkonsiz! ❌</span><br>Sizga yana ${need} ball kerak.`;
         } else {
-            resultDiv.innerHTML = `
-                <p>Hozirgi o'rtacha: <b>${average.toFixed(1)}</b></p>
-                <p>Maktabda qolish uchun qolgan ${remainingQuarters} ta chorakda o'rtacha <span class="highlight" style="color: var(--accent)">${avgNeeded.toFixed(1)}</span> ball olishingiz kerak.</p>
-            `;
+            resultDiv.innerHTML = `Sizga yana <b style="color:var(--accent)">${need}</b> ball kerak.<br>Qolgan ${rem} chorakda o'rtacha <b>${avgNeed.toFixed(1)}</b> ball oling.`;
         }
     }
 }
 
-// Sahifa yuklanganda dastlabki holatni tayyorlash
-document.addEventListener('DOMContentLoaded', generateInputs);
+// Boshlang'ich sozlamalar
+document.addEventListener('DOMContentLoaded', () => {
+    if (localStorage.getItem('theme') === 'light') document.body.classList.add('light-mode');
+    generateInputs();
+});

@@ -5,12 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Survival Calculator</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 </head>
 <body>
+
+    <button class="theme-toggle" onclick="toggleTheme()" title="Rejimni o'zgartirish">🌓</button>
 
     <div class="card">
         <h2>Student Survival 📚</h2>
         
+        <div class="progress-container" id="prog-container">
+            <div class="progress-label">O'rtacha ball: <span id="prog-value">0</span></div>
+            <div class="progress-bg">
+                <div class="progress-bar" id="prog-bar"></div>
+            </div>
+        </div>
+
         <div class="input-group">
             <label for="quarters">Necha chorak o'qidingiz?</label>
             <select id="quarters" onchange="generateInputs()">
@@ -24,7 +34,7 @@
         <div id="inputs-container">
             </div>
 
-        <button onclick="calculate()">Hisoblash</button>
+        <button class="calc-btn" onclick="calculate()">Hisoblash</button>
 
         <div id="result"></div>
     </div>
