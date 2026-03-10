@@ -1,11 +1,33 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="uz">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Student Survival Calculator</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    
+
+    <div class="card">
+        <h2>Student Survival 📚</h2>
+        
+        <div class="input-group">
+            <label>Necha chorak o'qidingiz?</label>
+            <select id="quarters" onchange="generateInputs()">
+                <option value="1">1-chorak tugadi</option>
+                <option value="2">2-chorak tugadi</option>
+                <option value="3">3-chorak tugadi</option>
+            </select>
+        </div>
+
+        <div id="inputs-container">
+            </div>
+
+        <button onclick="calculate()">Hisoblash</button>
+
+        <div id="result"></div>
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>
