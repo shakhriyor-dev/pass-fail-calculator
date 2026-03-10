@@ -98,3 +98,18 @@ button:hover {
     color: var(--accent);
     font-weight: bold;
 }
+
+select, input {
+    width: 100%; /* Mobil qurilmalar uchun */
+    max-width: 200px; /* Kompyuterda juda uzayib ketmasligi uchun */
+    display: block;
+    margin: 0 auto; /* Markazga tekislash */
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid #334155;
+    background: #0f172a;
+    color: white;
+    outline: none;
+    transition: 0.2s;
+    text-align: center; /* Raqamlar markazda tursin */
+}
