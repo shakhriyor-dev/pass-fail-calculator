@@ -89,7 +89,7 @@ function calculate() {
         if (avg >= 60) {
             resultDiv.innerHTML = `<b style="color:var(--success)">TABRIKLAYMIZ! 🎉</b><br>O'rtacha ${avg.toFixed(1)} ball bilan maktabda qolasiz!`;
         } else {
-            resultDiv.innerHTML = `<b style="color:var(--danger)">AFSUSA... 🚫</b><br>Ball yetmadi, maktabdan haydalasiz.`;
+            resultDiv.innerHTML = `<b style="color:var(--danger)">AFSUS... 🚫</b><br>Ball yetmadi, maktabdan haydalasiz.`;
         }
     } else {
         const rem = 4 - count;
